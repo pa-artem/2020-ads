@@ -3,15 +3,13 @@ package ru.mail.polis.ads.part1.pa_artem;
 import java.io.*;
 import java.util.StringTokenizer;
 
-import static java.lang.Math.max;
-
 public final class Problem6125 {
     private Problem6125() {
         // Should not be instantiated
     }
 
     private static void solve(final FastScanner in, final BufferedWriter out) throws IOException {
-        Queue queue = new Queue();
+        Queue queue = new Queue(120);
 
         while (true) {
             String input = in.next();
@@ -51,20 +49,17 @@ public final class Problem6125 {
     }
 
     public static class Queue {
-        private static final int MIN_CAPACITY = 8;
-
         // data[hi] is always unused
         private int[] data;
         private int lo, hi;
 
-        public Queue() {
-            data = new int[MIN_CAPACITY];
+        public Queue(int capacity) {
+            data = new int[capacity + 1];
             lo = 0;
             hi = 0;
         }
 
         public void push(int n) {
-            grow(1);
             data[hi] = n;
             hi = inc(hi);
         }
@@ -72,7 +67,6 @@ public final class Problem6125 {
         public int pop() {
             int value = data[lo];
             lo = inc(lo);
-            shrink();
             return value;
         }
 
@@ -83,7 +77,6 @@ public final class Problem6125 {
         public void clear() {
             lo = 0;
             hi = 0;
-            shrink();
         }
 
         public int size() {
@@ -91,35 +84,6 @@ public final class Problem6125 {
                 return 0;
             }
             return hi > lo ? hi - lo : hi + data.length - lo;
-        }
-
-        private void grow(int by) {
-            int size = size();
-            if (size + by + 1 > data.length) {
-                reallocate(max(size + by + 1, max(MIN_CAPACITY, 3 * data.length / 2)));
-            }
-        }
-
-        private void shrink() {
-            int size = size();
-            if (data.length > MIN_CAPACITY && size <= data.length / 4) {
-                reallocate(max(MIN_CAPACITY, 2 * size));
-            }
-        }
-
-        private void reallocate(int newSize) {
-            int[] newData = new int[newSize];
-            if (hi != lo) {
-                if (hi > lo) {
-                    System.arraycopy(data, lo, newData, 0, hi - lo);
-                } else {
-                    System.arraycopy(data, lo, newData, 0, data.length - lo);
-                    System.arraycopy(data, 0, newData, data.length - lo, hi);
-                }
-            }
-            hi = size();
-            lo = 0;
-            data = newData;
         }
 
         private int inc(int i) {
