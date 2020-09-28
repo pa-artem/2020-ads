@@ -1,8 +1,6 @@
 package ru.mail.polis.ads.part1.pa_artem;
 
 import java.io.*;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.StringTokenizer;
 
 public final class Problem5327 {
@@ -16,17 +14,20 @@ public final class Problem5327 {
     }
 
     private static boolean isCorrectExpression(char[] expr) {
-        Deque<Character> stack = new ArrayDeque<>();
+        int parenthesisCount = 0;
 
         for (char c : expr) {
             if (c == '(') {
-                stack.push('(');
-            } else if (stack.isEmpty() || stack.pop() != '(') {
-                return false;
+                parenthesisCount++;
+            } else {
+                if (parenthesisCount == 0) {
+                    return false;
+                }
+                parenthesisCount--;
             }
         }
 
-        return stack.isEmpty();
+        return parenthesisCount == 0;
     }
 
     private static class FastScanner {
