@@ -57,26 +57,34 @@ public class AvlBst<Key extends Comparable<Key>, Value>
 
     @Override
     public Key min() {
-        Node minNode = min(root);
-        return minNode == null ? null : minNode.key;
+        if (root == null) {
+            return null;
+        }
+        return min(root).key;
     }
 
     @Override
     public Value minValue() {
-        Node minNode = min(root);
-        return minNode == null ? null : minNode.value;
+        if (root == null) {
+            return null;
+        }
+        return min(root).value;
     }
 
     @Override
     public Key max() {
-        Node maxNode = max(root);
-        return maxNode == null ? null : maxNode.key;
+        if (root == null) {
+            return null;
+        }
+        return max(root).key;
     }
 
     @Override
     public Value maxValue() {
-        Node maxNode = max(root);
-        return maxNode == null ? null : maxNode.value;
+        if (root == null) {
+            return null;
+        }
+        return max(root).value;
     }
 
     @Override
@@ -170,8 +178,7 @@ public class AvlBst<Key extends Comparable<Key>, Value>
             x.value = value;
         }
         fixHeight(x);
-        x = balance(x);
-        return x;
+        return balance(x);
     }
 
     private Node remove(Node x, Key key) {
@@ -185,9 +192,11 @@ public class AvlBst<Key extends Comparable<Key>, Value>
         } else {
             x = innerRemove(x);
         }
-        // fixHeight(x);
-        // x = balance(x);
-        return x;
+        if (x == null) {
+            return null;
+        }
+        fixHeight(x);
+        return balance(x);
     }
 
     private Node innerRemove(Node x) {
