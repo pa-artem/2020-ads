@@ -28,9 +28,10 @@ public class AvlBst<Key extends Comparable<Key>, Value>
     public Value get(@NotNull Key key) {
         Node currentNode = root;
         while (currentNode != null) {
-            if (key.compareTo(currentNode.key) < 0) {
+            int compare = key.compareTo(currentNode.key);
+            if (compare < 0) {
                 currentNode = currentNode.left;
-            } else if (key.compareTo(currentNode.key) > 0) {
+            } else if (compare > 0) {
                 currentNode = currentNode.right;
             } else {
                 return currentNode.value;
@@ -141,10 +142,11 @@ public class AvlBst<Key extends Comparable<Key>, Value>
         if (x == null) {
             return null;
         }
-        if (key.compareTo(x.key) == 0) {
+        int compare = key.compareTo(x.key);
+        if (compare == 0) {
             return x;
         }
-        if (key.compareTo(x.key) > 0) {
+        if (compare > 0) {
             return ceil(x.right, key);
         }
         Node leftCeil = ceil(x.left, key);
@@ -155,10 +157,11 @@ public class AvlBst<Key extends Comparable<Key>, Value>
         if (x == null) {
             return null;
         }
-        if (key.compareTo(x.key) == 0) {
+        int compare = key.compareTo(x.key);
+        if (compare == 0) {
             return x;
         }
-        if (key.compareTo(x.key) < 0) {
+        if (compare < 0) {
             return floor(x.left, key);
         }
         Node rightFloor = floor(x.right, key);
@@ -170,9 +173,10 @@ public class AvlBst<Key extends Comparable<Key>, Value>
             size++;
             return new Node(key, value);
         }
-        if (key.compareTo(x.key) < 0) {
+        int compare = key.compareTo(x.key);
+        if (compare < 0) {
             x.left = put(x.left, key, value);
-        } else if (key.compareTo(x.key) > 0) {
+        } else if (compare > 0) {
             x.right = put(x.right, key, value);
         } else {
             x.value = value;
@@ -185,9 +189,10 @@ public class AvlBst<Key extends Comparable<Key>, Value>
         if (x == null) {
             return null;
         }
-        if (key.compareTo(x.key) < 0) {
+        int compare = key.compareTo(x.key);
+        if (compare < 0) {
             x.left = remove(x.left, key);
-        } else if (key.compareTo(x.key) > 0) {
+        } else if (compare > 0) {
             x.right = remove(x.right, key);
         } else {
             x = innerRemove(x);
