@@ -55,12 +55,17 @@ public class RedBlackBst<Key extends Comparable<Key>, Value>
     @Nullable
     @Override
     public Value remove(@NotNull Key key) {
+        if (root == null) {
+            return null;
+        }
         Value value = get(key);
         if (value == null) {
             return null;
         }
         root = remove(root, key);
-        root.color = BLACK;
+        if (root != null) {
+            root.color = BLACK;
+        }
         size--;
         return value;
     }
@@ -120,12 +125,131 @@ public class RedBlackBst<Key extends Comparable<Key>, Value>
         return size;
     }
 
+    private boolean isRed(Node x) {
+        return x != null && x.color == RED;
+    }
+
+    private Node rotateLeft(Node x) {
+        Node y = x.right;
+        x.right = y.left;
+        y.left = x;
+        // assuming y is always red
+        y.color = x.color;
+        x.color = RED;
+        return y;
+    }
+
+    private Node rotateRight(Node y) {
+        Node x = y.left;
+        y.left = x.right;
+        x.right = y;
+        x.color = y.color;
+        y.color = RED;
+        return x;
+    }
+
+    private Node flipColors(Node x) {
+        x.color = !x.color;
+        x.left.color = !x.left.color;
+        x.right.color = !x.right.color;
+        return x;
+    }
+
+    private Node fixUp(Node x) {
+        if (isRed(x.right) && !isRed(x.left)) {
+            x = rotateLeft(x);
+        }
+        if (isRed(x.left) && isRed(x.left.left)) {
+            x = rotateRight(x);
+        }
+        if (isRed(x.left) && isRed(x.right)) {
+            flipColors(x);
+        }
+        return x;
+    }
+
     private Node put(Node x, Key key, Value value) {
-        return null;
+        if (x == null) {
+            size++;
+            return new Node(key, value, RED);
+        }
+        int compare = key.compareTo(x.key);
+        if (compare < 0) {
+            x.left = put(x.left, key, value);
+        } else if (compare > 0) {
+            x.right = put(x.right, key, value);
+        } else {
+            x.value = value;
+        }
+        return fixUp(x);
+    }
+
+    // In case there is a 3-node on the right, borrows a value from there to make
+    // the left child a 3-node. If there is none, just makes a 3-node by flipping colors.
+    private Node moveRedLeft(Node x) {
+        flipColors(x);
+        if (isRed(x.right.left)) {
+            x.right = rotateRight(x.right);
+            x = rotateLeft(x);
+            flipColors(x);
+        }
+        return x;
+    }
+
+    private Node moveRedRight(Node x) {
+        flipColors(x);
+        if (isRed(x.left.left)) {
+            x = rotateRight(x);
+            flipColors(x);
+        }
+        return x;
+    }
+
+    private Node removeMin(Node x) {
+        if (x.left == null) {
+            return null;
+        }
+        if (!isRed(x.left) && !isRed(x.left.left)) {
+            x = moveRedLeft(x);
+        }
+        x.left = removeMin(x.left);
+        return fixUp(x);
     }
 
     private Node remove(Node x, Key key) {
-        return null;
+        if (x == null) {
+            return null;
+        }
+        int compare = key.compareTo(x.key);
+        if (compare < 0 && x.left != null) {
+            if (!isRed(x.left) && !isRed(x.left.left)) {
+                x = moveRedLeft(x);
+            }
+            x.left = remove(x.left, key);
+        } else {
+            if (isRed(x.left)) {
+                // make sure there is an outgoing red link
+                x = rotateRight(x);
+                x = remove(x.right, key);
+            }
+            if (compare > 0) {
+                if (!isRed(x.right) && !isRed(x.right.left)) {
+                    x = moveRedRight(x);
+                }
+                x.right = remove(x.right, key);
+            } else {
+                if (x.right == null) {
+                    // at the bottom of the tree inside a 3-node with the target key
+                    return null;
+                }
+                // intermediate node case
+                Node min = min(x.right);
+                x.key = min.key;
+                x.value = min.value;
+                x.right = removeMin(x.right);
+            }
+        }
+        return fixUp(x);
     }
 
     private Node min(Node x) {
