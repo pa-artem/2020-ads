@@ -222,31 +222,31 @@ public class RedBlackBst<Key extends Comparable<Key>, Value>
         }
         int compare = key.compareTo(x.key);
         if (compare < 0 && x.left != null) {
+            // preserve the invariant
             if (!isRed(x.left) && !isRed(x.left.left)) {
                 x = moveRedLeft(x);
             }
             x.left = remove(x.left, key);
+        } else if (isRed(x.left)) {
+            // make sure there is an outgoing red link
+            x = rotateRight(x);
+            x.right = remove(x.right, key);
+        } else if (compare == 0 && x.right == null) {
+            // at the bottom of the tree inside a 3-node with the target key
+            return null;
         } else {
-            if (isRed(x.left)) {
-                // make sure there is an outgoing red link
-                x = rotateRight(x);
-                x = remove(x.right, key);
+            // preserve the invariant
+            if (x.right != null && !isRed(x.right) && !isRed(x.right.left)) {
+                x = moveRedRight(x);
             }
-            if (compare > 0) {
-                if (!isRed(x.right) && !isRed(x.right.left)) {
-                    x = moveRedRight(x);
-                }
-                x.right = remove(x.right, key);
-            } else {
-                if (x.right == null) {
-                    // at the bottom of the tree inside a 3-node with the target key
-                    return null;
-                }
+            if (key.compareTo(x.key) == 0) {
                 // intermediate node case
                 Node min = min(x.right);
                 x.key = min.key;
                 x.value = min.value;
                 x.right = removeMin(x.right);
+            } else {
+                x.right = remove(x.right, key);
             }
         }
         return fixUp(x);
